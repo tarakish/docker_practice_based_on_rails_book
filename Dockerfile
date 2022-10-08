@@ -15,32 +15,16 @@ FROM ruby:2.6.6
 COPY --from=nodejs /tmp/node /opt/node
 ENV PATH /opt/node/bin:$PATH
 
-# アプリケーション起動用のユーザーを追加
-RUN useradd -m -u 1000 rails
-RUN mkdir /app && chown rails /app
-USER rails
-
 # yarnのインストール
 RUN curl -o- -L https://yarnpkg.com/install.sh | bash
-ENV PATH /home/rails/.yarn/bin:/home/rails/.config/yarn/global/node_modules/.bin:$PATH
+ENV PATH /root/.yarn/bin:/root/.config/yarn/global/node_modules/.bin:$PATH
 
 # ruby-2.7.0でnewした場合を考慮
 RUN gem install bundler
 
 WORKDIR /app
 
-# Dockerのビルドステップキャッシュを利用するため
-# 先にGemfileを転送し、bundle installする
-COPY --chown=rails Gemfile Gemfile.lock package.json yarn.lock /app/
-
-RUN bundle install
-RUN yarn install
-
-COPY --chown=rails . /app
-
-RUN bin/rails assets:precompile
-
-VOLUME /app/public
+RUN bundle config set path vendor/bundle
 
 #実行時にコマンド指定が無い場合に実行されるコマンド
-CMD ["bin/rails", "s", "-b", "0.0.0.0"]
+CMD ["bash"]
