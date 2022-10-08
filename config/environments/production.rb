@@ -85,6 +85,9 @@ Rails.application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   # Use a different logger for distributed setups.
+  config.logger = ActiveSupport::Logger.new($stdout)
+  $stdout.sync = true # syncを有効にしないとバッファされログが一定たまらないと出力されない
+
   # require "syslog/logger"
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
